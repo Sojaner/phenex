@@ -17,31 +17,52 @@ func Create(filePath string) (*Logger, error) {
 	return &Logger{FilePath: filePath, file: file}, err
 }
 
-func (logger *Logger) Printf(format string, v ...interface{}) {
+func (Logger *Logger) Printf(format string, v ...interface{}) {
 	dateTime := fmt.Sprintf("[%v] ", time.DateTime)
 	message := dateTime + fmt.Sprintf(format, v...)
-	_, _ = logger.file.WriteString(message)
+	_, _ = Logger.file.WriteString(message)
 	log.Print(message)
 }
 
-func (logger *Logger) Println(v ...interface{}) {
+func (Logger *Logger) Println(v ...interface{}) {
 	dateTime := fmt.Sprintf("[%v] ", time.DateTime)
 	message := dateTime + fmt.Sprintln(v...)
-	_, _ = logger.file.WriteString(message)
+	_, _ = Logger.file.WriteString(message)
 	log.Print(message)
 }
 
-func (logger *Logger) Print(v ...interface{}) {
+func (Logger *Logger) Print(v ...interface{}) {
 	dateTime := fmt.Sprintf("[%v] ", time.DateTime)
 	message := dateTime + fmt.Sprint(v...)
-	_, _ = logger.file.WriteString(message)
+	_, _ = Logger.file.WriteString(message)
 	log.Print(message)
 }
 
-func (logger *Logger) Fatal(v ...interface{}) {
-	dateTime := fmt.Sprintf("[%v] ", time.DateTime)
+func (Logger *Logger) Errorf(format string, v ...interface{}) {
+	dateTime := fmt.Sprintf("[%v] ERROR: ", time.DateTime)
+	message := dateTime + fmt.Sprintf(format, v...)
+	_, _ = Logger.file.WriteString(message)
+	log.Print(message)
+}
+
+func (Logger *Logger) Errorln(v ...interface{}) {
+	dateTime := fmt.Sprintf("[%v] ERROR: ", time.DateTime)
+	message := dateTime + fmt.Sprintln(v...)
+	_, _ = Logger.file.WriteString(message)
+	log.Print(message)
+}
+
+func (Logger *Logger) Error(v ...interface{}) {
+	dateTime := fmt.Sprintf("[%v] ERROR: ", time.DateTime)
 	message := dateTime + fmt.Sprint(v...)
-	_, _ = logger.file.WriteString(message)
-	_ = logger.file.Close()
+	_, _ = Logger.file.WriteString(message)
+	log.Print(message)
+}
+
+func (Logger *Logger) Fatal(v ...interface{}) {
+	dateTime := fmt.Sprintf("[%v] ERROR: ", time.DateTime)
+	message := dateTime + fmt.Sprint(v...)
+	_, _ = Logger.file.WriteString(message)
+	_ = Logger.file.Close()
 	log.Fatal(message)
 }

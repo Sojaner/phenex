@@ -39,12 +39,12 @@ func main() {
 		log.Println("Waiting for commands...")
 		accept, err := listener.Accept()
 		if err != nil {
-			log.Println(err)
+			log.Errorln(err)
 		}
 		buffer := make([]byte, 1024)
 		read, err := accept.Read(buffer)
 		if err != nil {
-			log.Println(err)
+			log.Errorln(err)
 		}
 		for {
 			err = accept.Close()
@@ -63,13 +63,13 @@ func main() {
 				log.Println("Rebooting ...")
 				err = syscall.Reboot(syscall.LINUX_REBOOT_CMD_POWER_OFF)
 				if err != nil {
-					log.Println(err)
+					log.Errorln(err)
 				} else {
 					rebootRequested = true
 				}
 			}
 		} else {
-			log.Printf("Unrecognized Command: %s", command)
+			log.Errorf("Unrecognized Command: %s", command)
 		}
 	}
 	for {
