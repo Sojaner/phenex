@@ -2,19 +2,25 @@ package main
 
 import (
 	"flag"
-	"log"
 	"net"
 	"os"
 	"strings"
 	"syscall"
 	"time"
+
+	"sojaner.com/phenex/phenex/logger"
 )
 
 func main() {
-	socketPath := flag.String("socket-path", "/var/run/container-reboot.sock", "Path to the socket file")
+	socketPath := flag.String("socket-path", "/var/run/phenex-reboot.sock", "Path to the socket file")
+	logPath := flag.String("log-path", "/var/log/phenex-reboot.log", "Path to the log file")
 	wait := flag.Duration("wait", 5*time.Second, "Time to wait before rebooting")
 	flag.Parse()
-	err := os.Remove(*socketPath)
+	log, err := logger.Create(*logPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.Remove(*socketPath)
 	if err != nil && !os.IsNotExist(err) {
 		log.Fatal(err)
 	}
@@ -30,12 +36,12 @@ func main() {
 	for !rebootRequested {
 		accept, err := listener.Accept()
 		if err != nil {
-			log.Print(err)
+			log.Println(err)
 		}
 		buffer := make([]byte, 1024)
 		read, err := accept.Read(buffer)
 		if err != nil {
-			log.Print(err)
+			log.Println(err)
 		}
 		for {
 			err = accept.Close()
@@ -51,10 +57,10 @@ func main() {
 			for err == nil && !rebootRequested {
 				log.Printf("Waiting %v for reboot...", *wait)
 				time.Sleep(*wait)
-				log.Print("Rebooting ...")
+				log.Println("Rebooting ...")
 				err = syscall.Reboot(syscall.LINUX_REBOOT_CMD_POWER_OFF)
 				if err != nil {
-					log.Print(err)
+					log.Println(err)
 				} else {
 					rebootRequested = true
 				}
