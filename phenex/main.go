@@ -20,6 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("Starting Phenex...")
 	err = os.Remove(*socketPath)
 	if err != nil && !os.IsNotExist(err) {
 		log.Fatal(err)
@@ -32,8 +33,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("Phenex Started")
 	rebootRequested := false
 	for !rebootRequested {
+		log.Println("Waiting for commands...")
 		accept, err := listener.Accept()
 		if err != nil {
 			log.Println(err)
@@ -51,8 +54,8 @@ func main() {
 		}
 		data := buffer[:read]
 		command := string(data)
-		log.Printf("Command received: %s", command)
 		if strings.HasPrefix(command, "reboot:") {
+			log.Printf("Reboot Command: %s", command)
 			err = nil
 			for err == nil && !rebootRequested {
 				log.Printf("Waiting %v for reboot...", *wait)
@@ -65,6 +68,8 @@ func main() {
 					rebootRequested = true
 				}
 			}
+		} else {
+			log.Printf("Unrecognized Command: %s", command)
 		}
 	}
 	for {
