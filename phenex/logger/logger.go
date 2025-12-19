@@ -66,3 +66,11 @@ func (Logger *Logger) Fatal(v ...interface{}) {
 	_ = Logger.file.Close()
 	log.Fatal(message)
 }
+
+func (Logger *Logger) Fatalf(format string, v ...interface{}) {
+	dateTime := fmt.Sprintf("[%v] ERROR: ", time.DateTime)
+	message := dateTime + fmt.Sprintf(format, v...)
+	_, _ = Logger.file.WriteString(message)
+	_ = Logger.file.Close()
+	log.Fatal(message)
+}
