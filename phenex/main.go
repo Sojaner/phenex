@@ -85,4 +85,5 @@ func main() {
 			break
 		}
 	}
+	log.Println("Phenex Stopped")
 }
