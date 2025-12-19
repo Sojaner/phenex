@@ -4,6 +4,7 @@ import (
 	"flag"
 	"net"
 	"os"
+	"os/exec"
 	"strings"
 	"syscall"
 	"time"
@@ -11,10 +12,23 @@ import (
 	"sojaner.com/phenex/phenex/logger"
 )
 
+type Commands []string
+
+func (i *Commands) String() string {
+	return strings.Join(*i, ", ")
+}
+
+func (i *Commands) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
 func main() {
 	socketPath := flag.String("socket-path", "/var/run/phenex-reboot.sock", "Path to the socket file")
 	logPath := flag.String("log-path", "/var/log/phenex-reboot.log", "Path to the log file")
 	wait := flag.Duration("wait", 5*time.Second, "Time to wait before rebooting")
+	var commands Commands
+	flag.Var(&commands, "commands", "List of commands to be run prior to the reboot (can be used multiple times)")
 	flag.Parse()
 	log, err := logger.Create(*logPath)
 	if err != nil {
@@ -63,6 +77,16 @@ func main() {
 		command := string(data)
 		if strings.HasPrefix(command, "reboot:") {
 			log.Printf("Reboot Command: %s", command)
+			for _, c := range commands {
+				parts := strings.Fields(c)
+				if len(parts) == 0 {
+					continue
+				}
+				err := exec.Command(parts[0], parts[1:]...).Start()
+				if err != nil {
+					log.Error(err)
+				}
+			}
 			err = nil
 			for err == nil && !rebootRequested {
 				log.Printf("Waiting %v for reboot...", *wait)
