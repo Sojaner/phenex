@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	l "log"
 	"net"
 	"os"
 	"os/exec"
@@ -32,7 +33,7 @@ func main() {
 	flag.Parse()
 	log, err := logger.Create(*logPath)
 	if err != nil {
-		log.Fatal(err)
+		l.Fatal(err)
 	}
 	if os.Geteuid() != 0 {
 		log.Fatalf("This program must be run as root (try: sudo %s)", os.Args[0])
